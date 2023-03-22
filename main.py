@@ -16,6 +16,7 @@ mosque_uuid = '51d36aff-f636-48f0-8961-f279eabc2d22'
 
 # Azan url
 azan_url = "https://www.islamcan.com/audio/adhan/azan12.mp3"
+dir_path = "/Users/abdelrahmanelessawy/PycharmProjects/Azan"
 
 
 def load_prayer_times_from_mawaqit():
@@ -78,7 +79,7 @@ def play_azan(prayer_name):
 
 def log(text):
     today = datetime.date.today().strftime("%Y-%m-%d")
-    with open(f"log/{today}.txt", 'a') as f:
+    with open(f"{dir_path}/log/{today}.txt", 'a') as f:
         # Write new lines to the file
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
