@@ -14,6 +14,8 @@ my_prayers = ['Dhuhr', 'Asr', 'Maghrib', 'Isha']
 mosque_name = 'Blauwe'
 mosque_uuid = '51d36aff-f636-48f0-8961-f279eabc2d22'
 
+# Azan url
+azan_url = "https://www.islamcan.com/audio/adhan/azan12.mp3"
 
 def load_prayer_times_from_mawaqit():
     url = 'https://mawaqit.net/api/2.0/mosque/search?word=' + mosque_name
@@ -68,8 +70,8 @@ def convert_to_timestamp_and_filter(prayer_times):
 
 # Play the Azan on Sonos speaker
 def play_azan(prayer_name):
-    audio_url = "https://www.islamcan.com/audio/adhan/azan12.mp3"  # Replace with the actual audio file URL
-    sonos.play_uri(audio_url)
+    sonos.volume = 15
+    sonos.play_uri(azan_url)
     print(f"Playing {prayer_name} Azan")
 
 def run():
