@@ -7,8 +7,8 @@ import soco as soco
 sonos = soco.discovery.any_soco()
 
 # Prayers to notify
-# my_prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
-my_prayers = ['Dhuhr', 'Asr', 'Maghrib', 'Isha']
+my_prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
+# my_prayers = ['Dhuhr', 'Asr', 'Maghrib', 'Isha']
 
 # Mawaqit attrs > Blauwe Mosque
 mosque_name = 'Blauwe'
@@ -72,6 +72,8 @@ def convert_to_timestamp_and_filter(prayer_times):
 
 # Play the Azan on Sonos speaker
 def play_azan(prayer_name):
+    sonos.pause()
+    time.sleep(2)
     sonos.volume = 15
     sonos.play_uri(azan_url)
     log(f"Playing {prayer_name} Azan")
@@ -80,7 +82,6 @@ def play_azan(prayer_name):
 def log(text):
     today = datetime.date.today().strftime("%Y-%m-%d")
     with open(f"{dir_path}/log/{today}.txt", 'a') as f:
-        # Write new lines to the file
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         f.write(f"[{dt_string}]:{text}.\n")
@@ -88,9 +89,18 @@ def log(text):
     print(text)
 
 
+def get_next_prayer(prayer_timestamps):
+    current_time = time.time()
+    for prayer_name, prayer_timestamp in prayer_timestamps.items():
+        if current_time >= prayer_timestamp:
+            return prayer_name
+    return ''
+
+
 def run():
-    log("Load prayer times")
+    log("Loading prayer times..")
     prayer_timestamps = load_prayer_times()
+    log(f"Prayer times loaded, prayers={prayer_timestamps}")
 
     while True:
 
@@ -99,23 +109,21 @@ def run():
             log("Prayer map is empty, goodbye!!")
             break
 
-        current_time = time.time()
-        current_prayer_name = ''
+        cur_prayer_name = get_next_prayer(prayer_timestamps)
 
-        for prayer_name, prayer_timestamp in prayer_timestamps.items():
-            if current_time >= prayer_timestamp:
-                current_prayer_name = prayer_name
-                break
+        if cur_prayer_name != '':
+            cur_time = time.time()
+            cur_prayer_time = prayer_timestamps[cur_prayer_name]
 
-        if current_prayer_name != '':
-            if current_time - prayer_timestamps[current_prayer_name] >= 600:
-                log(f"Prayer {current_prayer_name} is too late, will not play Azan!")
+            if cur_time - cur_prayer_time >= 900:
+                log(f"Prayer {cur_prayer_name} is too late, will not play Azan!")
             else:
-                play_azan(current_prayer_name)
+                log(f"Start play azan for prayer {cur_prayer_name}, with time={cur_prayer_time}, current={cur_time}")
+                play_azan(cur_prayer_name)
                 time.sleep(1800)  # cool down for 30 mins
 
-            del prayer_timestamps[current_prayer_name]
-            log(f"Prayer {current_prayer_name} is removed from prayer map!")
+            del prayer_timestamps[cur_prayer_name]
+            log(f"Prayer {cur_prayer_name} is removed from prayer map!")
 
 
 run()
