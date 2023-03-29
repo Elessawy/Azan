@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
+        "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+   <key>Label</key>
+   <string>com.example.azan-script</string>
+   <key>ProgramArguments</key>
+   <array>
+      <string>python3</string>
+      <string>/Users/abdelrahmanelessawy/PycharmProjects/Azan/main.py</string>
+   </array>
+   <key>StartCalendarInterval</key>
+   <array>
+      <dict>
+         <key>Hour</key>
+         <integer>1</integer>
+         <key>Minute</key>
+         <integer>0</integer>
+      </dict>
+   </array>
+   <key>StartInterval</key>
+   <integer>120</integer>
+   <key>RunAtLoad</key>
+   <false/>
+   <key>StandardOutPath</key>
+   <string>/Users/abdelrahmanelessawy/PycharmProjects/Azan/log/file.log</string>
+   <key>StandardErrorPath</key>
+   <string>/Users/abdelrahmanelessawy/PycharmProjects/Azan/log/file-error.log</string>
+</dict>
+</plist>

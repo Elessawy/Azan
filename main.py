@@ -2,6 +2,8 @@ import requests
 import time
 import datetime
 import soco as soco
+from soco.alarms import Alarms, Alarm
+import os
 
 # Set up the Sonos speaker
 sonos = soco.discovery.any_soco()
@@ -89,6 +91,27 @@ def log(text):
     print(text)
 
 
+def clear_log_files():
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=3)  # not yesterday, keep 3 days
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
+    old_log_file_path = f"{dir_path}/log/{yesterday_str}.txt"
+    if os.path.exists(old_log_file_path):
+        os.remove(old_log_file_path)
+
+    main_log_file_path = f"{dir_path}/log/file.log"
+    if os.path.exists(main_log_file_path):
+        os.remove(main_log_file_path)
+
+    error_log_file_path = f"{dir_path}/log/file-error.log"
+    if os.path.exists(error_log_file_path):
+        os.remove(error_log_file_path)
+
+    yesterday_done_file_path = f"{dir_path}/log/done-{yesterday_str}.txt"
+    if os.path.exists(yesterday_done_file_path):
+        os.remove(yesterday_done_file_path)
+
+
 def get_next_prayer(prayer_timestamps):
     current_time = time.time()
     for prayer_name, prayer_timestamp in prayer_timestamps.items():
@@ -126,4 +149,65 @@ def run():
             log(f"Prayer {cur_prayer_name} is removed from prayer map!")
 
 
-run()
+def clear_all_alarms():
+    alarms = Alarms()
+    alarms.update()
+    for alarm in alarms:
+        alarm.remove()
+
+
+def set_alarm(timestamp, volume):
+    alarm = Alarm(sonos)
+
+    # Set the alarm parameters
+    alarm.volume = volume
+    # alarm.duration =  time.
+    alarm.start_time = datetime.datetime.fromtimestamp(timestamp).time()
+    alarm.enabled = True
+    alarm.play_mode = "SHUFFLE_NOREPEAT"
+    alarm.recurrence = "ONCE"
+    alarm.program_uri = azan_url
+
+    alarm.save()
+
+
+def get_done_file_path():
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    return f"{dir_path}/log/done-{today}.txt"
+
+
+def already_done_successfully_today():
+    return os.path.exists(get_done_file_path())
+
+
+def create_done_today_file():
+    with open(get_done_file_path(), 'a') as f:
+        f.write("DONE!")
+        f.close()
+
+
+def run_by_alarm():
+    # if already_done_successfully_today():
+    #     return
+
+    log("Loading prayer times..")
+    prayer_timestamps = load_prayer_times()
+    log(f"Prayer times loaded, prayers={prayer_timestamps}")
+
+    clear_all_alarms()
+
+    for prayer_name, prayer_timestamp in prayer_timestamps.items():
+        log(f"Set alarm from prayer {prayer_name}")
+        if prayer_name == 'Fajr':
+            set_alarm(prayer_timestamp, 5)
+        else:
+            set_alarm(prayer_timestamp, 20)
+
+    create_done_today_file()
+
+
+clear_log_files()
+
+run_by_alarm()
+
+# run()
